@@ -8,6 +8,14 @@ const ERROR_MESSAGE = 'متاسفم، برای سایر پیام ها برنام
 const THANK_MESSAGE = 'ممنون که عضو کانال ما شده اید';
 const CHANEL_ID = '@khabar_tap';
 const REQUEST_JOIN_MESSAGE = 'شما عضو کانال '. CHANEL_ID ." نیستید. ممنون می شویم اگر عضو شوید";
+const START_MENU = array(
+    'resize_keyboard' => true,
+    'inline_keyboard' => array(
+        array(
+            array('text' => 'ورود به سایت ایش تاپ','url' => 'https://ishap.ir'),array('text' => 'تعرفه ها','url' => 'https://ishap.ir/pricing')
+        )
+    )
+);
 
 require 'bot.php';
 
@@ -22,7 +30,7 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
         if ($check_member['ok']) {
             if ($check_member['result']['status'] == 'member' || $check_member['result']['status'] == 'creator' || $check_member['result']['status'] == 'administrator')
             {
-                msg('sendMessage', array('chat_id' => $chat_id, 'text' => THANK_MESSAGE));
+                msg('sendMessage', array('chat_id' => $chat_id, 'text' => THANK_MESSAGE , 'reply_markup' => json_encode(START_MENU)));
             }else{
                 msg('sendMessage', array('chat_id' => $chat_id, 'text' => REQUEST_JOIN_MESSAGE));
             }
