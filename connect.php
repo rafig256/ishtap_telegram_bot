@@ -1,12 +1,13 @@
 <?php
-// فایل connect.php برای اتصال به پایگاه داده
-$host = 'localhost';
-$dbname = 'varavi_bot';
-$username = 'varavi_rafig';
-$password = 'Rafig@256#256'; // رمز عبور را جایگزین کنید
+$db_host = getenv('DB_HOST');
+$db_name = getenv('DB_NAME');
+$db_user = getenv('DB_USER');
+$db_password = getenv('DB_PASSWORD');
+$pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_password);
+
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("خطا در اتصال به پایگاه داده: " . $e->getMessage());
