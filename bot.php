@@ -23,3 +23,50 @@ function msg($method, $param) {
     }
     return $result;
 }
+
+// تابعی برای ذخیره کاربر در صورت عدم وجود در پایگاه داده
+function saveUserIfNotExists($pdo, $user_id, $first_name, $last_name, $username) {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id = :user_id");
+    $stmt->execute(['user_id' => $user_id]);
+
+    if ($stmt->fetchColumn() == 0) { // اگر کاربر وجود ندارد
+        $stmt = $pdo->prepare("INSERT INTO users (id, first_name, last_name, username) VALUES (:user_id, :first_name, :last_name, :username)");
+        $stmt->execute([
+            'user_id' => $user_id,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'username' => $username
+        ]);
+    }
+}
+
+
+// تابع ذخیره وضعیت کاربر
+function saveUserState($pdo, $user_id, $state) {
+    $query = "UPDATE users SET status = :state WHERE id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['state' => $state, 'user_id' => $user_id]);
+}
+
+// تابع بازیابی وضعیت کاربر
+function getUserState($pdo, $user_id) {
+    $query = "SELECT status FROM users WHERE id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['user_id' => $user_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['status'] : null;
+}
+
+// تابع ذخیره آیدی اینستاگرام
+function saveInstagramId($pdo, $user_id, $instagram_id) {
+    $query = "UPDATE users SET instagram_ids = :instagram_id WHERE id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['instagram_id' => $instagram_id, 'user_id' => $user_id]);
+}
+
+// تابع تنظیم مجدد وضعیت کاربر
+function resetUserState($pdo, $user_id) {
+    $query = "UPDATE users SET status = :state WHERE id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['state' => 'active', 'user_id' => $user_id]);
+}

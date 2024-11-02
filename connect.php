@@ -7,4 +7,3 @@ try {
 } catch (PDOException $e) {
     die("خطا در اتصال به پایگاه داده: " . $e->getMessage());
 }
-?>
