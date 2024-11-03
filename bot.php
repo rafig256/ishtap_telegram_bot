@@ -64,9 +64,15 @@ function saveInstagramId($pdo, $user_id, $instagram_id) {
     $stmt->execute(['instagram_id' => $instagram_id, 'user_id' => $user_id]);
 }
 
+function saveJobName($pdo , $user_id, $job_name){
+    $query = "UPDATE users SET job_name = :job_name WHERE id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['job_name' => $job_name, 'user_id' => $user_id]);
+}
+
 // تابع تنظیم مجدد وضعیت کاربر
-function resetUserState($pdo, $user_id) {
+function resetUserState($pdo, $user_id , $state ) {
     $query = "UPDATE users SET status = :state WHERE id = :user_id";
     $stmt = $pdo->prepare($query);
-    $stmt->execute(['state' => 'active', 'user_id' => $user_id]);
+    $stmt->execute(['state' => $state, 'user_id' => $user_id]);
 }

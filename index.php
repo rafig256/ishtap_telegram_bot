@@ -52,8 +52,12 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'instagram_id = '. $instagram_id));
             saveInstagramId($pdo , $chat_id, $instagram_id);
 
-            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'آیدی اینستاگرام شما با موفقیت ذخیره شد.'));
-            resetUserState($pdo, $chat_id);
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'آیدی اینستاگرام شما با موفقیت ذخیره شد. لطفا نام کسب و کار خود را وارد کنید.'));
+            resetUserState($pdo, $chat_id , 'awaiting_job_name');
+        }elseif($user_state == 'awaiting_job_name') {
+            $job_name = $message;
+            saveJobName($pdo , $chat_id, $job_name);
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'نام کسب و کار شما با موفقیت ذخیره شد. '));
         }
     }
 //    else {msg('sendMessage', array('chat_id' => $chat_id, 'text' => ERROR_MESSAGE));}
