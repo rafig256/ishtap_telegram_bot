@@ -43,6 +43,28 @@ const START_MENU = array(
         )
     )
 );
+const LAW_MENU = array(
+    'resize_keyboard' => true,
+    'inline_keyboard' => array(
+        array(
+            array('text' => 'مشاهده تعرفه‌ها', 'url' => 'https://ishtap.ir/pricing'),
+            array('text' => 'تماس با پشتیبان', 'url' => 'https://t.me/ishtap_site')
+        ),
+        array(
+            array('text' => 'ثبت نام در سایت', 'url' => 'https://ishtap.ir/register')
+        ),
+        array(
+            array('text' => 'دریافت کد تخفیف ۹۵ درصدی', 'callback_data' => 'get_discount')
+        ),
+        array(
+            array('text' => 'ثبت شغل در سایت', 'url' => 'https://ishtap.ir/user/listing/create')
+        ),
+        array(array(
+            'text' => 'ورود به Mini app',
+            'web_app' => array('url' => 'https://ishtap.ir/api/tbot/281810766:AAGwctqoowPoqNEH27MlTRUeYFucziJLlUQ') // آدرس مینی اپ
+        ))
+    )
+);
 
 // فراخوانی فایل‌های مورد نیاز
 require 'bot.php';
@@ -86,7 +108,7 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
             $job_name = $message;
             saveJobName($pdo , $chat_id, $job_name);
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'نام کسب و کار شما با موفقیت ذخیره شد. '));
-            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => LAW));
+            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => LAW , 'reply_markup' => json_encode(LAW_MENU)));
             resetUserState($pdo, $chat_id , 'create_discount_code');
         }
     }
@@ -100,11 +122,25 @@ if (isset($content['callback_query'])) {
     $callback_query = $content['callback_query'];
     $chat_id = $callback_query['from']['id'];
     $callback_data = $callback_query['data'];
+    $user_id = $callback_query['from']['id'];
 
     if ($callback_data == 'join_project') {
         $count_completed = countUsers($pdo , 'completed');
         msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'فقط ' . TOTAL_COUNT_USER - $count_completed . ' نفر دیگر تا پایان طرح باقی مانده است '));
         msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'لطفاً آیدی اینستاگرام خود را ارسال کنید:'));
         saveUserState($pdo , $chat_id, 'awaiting_instagram_id');
+    }elseif ($callback_data == 'get_discount') {
+        $user = getUser($pdo , $user_id);
+        if($user->state == 'create_discount_code'){
+            $get_instagram_id = $user->instagram_ids;
+            $discount_code = getDiscountCode(95, $get_instagram_id,4);
+// ارسال پیام معرفی کد تخفیف
+            msg('sendMessage', array('chat_id' => $chat_id,'text' => "کد تخفیف شما:"));
+            msg('sendMessage', array('chat_id' => $chat_id,'text' => $discount_code));
+            resetUserState($pdo , $user_id , 'completed');
+        }else{
+            msg('sendMessage', array('chat_id' => $chat_id,'text' => "شما در مرحله معرفی کد تخفیف نیستید."));
+        }
+
     }
 }

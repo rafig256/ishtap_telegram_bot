@@ -57,6 +57,13 @@ function getUserState($pdo, $user_id) {
     return $result ? $result['status'] : null;
 }
 
+function getUser($pdo, $user_id){
+    $query = "SELECT * FROM users WHERE id = :user_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['user_id' => $user_id]);
+    $result = $stmt->fetch(PDO::FETCH_OBJ);
+    return $result;
+}
 // تابع ذخیره آیدی اینستاگرام
 function saveInstagramId($pdo, $user_id, $instagram_id) {
     $query = "UPDATE users SET instagram_ids = :instagram_id WHERE id = :user_id";
@@ -84,4 +91,14 @@ function countUsers($pdo , $status) {
     $stmt->execute(['status' => $status]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result ? $result['count'] : 0;
+}
+
+function getDiscountCode($percent, $string, $number_random_char): string
+{
+    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    $random = substr(str_shuffle($characters), 0, $number_random_char);
+
+    $discount_code = $percent . '-' . $string . '-' . $random;
+
+    return $discount_code;
 }
