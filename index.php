@@ -2,7 +2,6 @@
 $receive_data = file_get_contents('php://input');
 $content = json_decode($receive_data, true);
 
-const START_MESSAGE = 'سلام. به ربات ایش تاپ خوش آمدید. شما می تونید در این ربات خدمات مربوط به سایت بانک اطلاعات مشاغل ایش تاپ رو دریافت کنید.';
 const THANK_MESSAGE = 'ممنون که عضو کانال ما شده اید';
 const CHANEL_ID = '@khabar_tap';
 const TOTAL_COUNT_USER = 20;
@@ -11,9 +10,8 @@ const LAW = "<b>🚀 شرایط شرکت در طرح راکت:</b>\n\n" .
     "1️⃣ شما باید پیج اینستاگرامی با بیش از 1000 نفر دنبال‌کننده داشته باشید. " .
     "(پس از ایجاد صفحه‌ی شغلی، لینک ایجاد شده را در بخش bio پیج اینستاگرام خود قرار دهید.)\n\n" .
     "2️⃣ دفتر فیزیکی شما باید در مشگین‌شهر باشد. این طرح مخصوص کسب‌وکارهای مشگین‌شهر است.\n\n" .
-    "<b>⛔️ توجه:</b> در صورتی که شرایط طرح رعایت نشده باشد، صفحه‌ی شما در سایت <b>معلق</b> خواهد شد.\n\n" .
-
-    "<b>📋 مراحل کار:</b>\n\n" .
+    "<b>⛔️ توجه:</b> در صورتی که شرایط طرح رعایت نشده باشد، صفحه‌ی شما در سایت <b>معلق</b> خواهد شد.\n\n" ;
+const PROCESS = "<b>📋 مراحل کار:</b>\n\n" .
     "1️⃣ ابتدا روی <a href='https://ishtap.ir/pricing' target='_blank'>🔗 تعرفه‌ها</a> کلیک کرده و بررسی کنید " .
     "آیا دسته‌ی شغلی شما در سایت تعریف شده است یا نه. در صورت نبودن دسته شغلی، با <a href='https://t.me/ishtap_site'>پشتیبان</a> تماس بگیرید.\n\n" .
 
@@ -90,7 +88,6 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
                 msg('sendMessage', array('chat_id' => $chat_id, 'text' => REQUEST_JOIN_MESSAGE));
             }
         }
-        msg('sendMessage', array('chat_id' => $chat_id, 'text' => START_MESSAGE));
     }
     else{
         //پاسخ ها بر اساس وضعیت کاربر
@@ -99,7 +96,6 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
         if ($user_state == 'awaiting_instagram_id') {
             $instagram_id = $message;
 
-            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'instagram_id = '. $instagram_id));
             setUser($pdo , $chat_id , 'instagram_ids' , $instagram_id);
 
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'آیدی اینستاگرام شما با موفقیت ذخیره شد. لطفا نام کسب و کار خود را وارد کنید.'));
@@ -110,6 +106,7 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
             setUser($pdo , $chat_id , 'job_name' , $job_name);
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'نام کسب و کار شما با موفقیت ذخیره شد. '));
             msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => LAW , 'reply_markup' => json_encode(LAW_MENU)));
+            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => PROCESS , 'reply_markup' => json_encode(LAW_MENU)));
             setUser($pdo , $chat_id , 'status' , 'create_discount_code');
         }
     }
