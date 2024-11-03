@@ -94,22 +94,23 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
     }
     else{
         //پاسخ ها بر اساس وضعیت کاربر
-        $user_state = getUserState($pdo , $chat_id);
+        $user = getUser($pdo , $chat_id);
+        $user_state = $user->status;
         if ($user_state == 'awaiting_instagram_id') {
             $instagram_id = $message;
 
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'instagram_id = '. $instagram_id));
-            saveInstagramId($pdo , $chat_id, $instagram_id);
+            setUser($pdo , $chat_id , 'instagram_ids' , $instagram_id);
 
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'آیدی اینستاگرام شما با موفقیت ذخیره شد. لطفا نام کسب و کار خود را وارد کنید.'));
-            resetUserState($pdo, $chat_id , 'awaiting_job_name');
+            setUser($pdo , $chat_id , 'status' , 'awaiting_job_name');
         }
         elseif($user_state == 'awaiting_job_name') {
             $job_name = $message;
-            saveJobName($pdo , $chat_id, $job_name);
+            setUser($pdo , $chat_id , 'job_name' , $job_name);
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'نام کسب و کار شما با موفقیت ذخیره شد. '));
             msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => LAW , 'reply_markup' => json_encode(LAW_MENU)));
-            resetUserState($pdo, $chat_id , 'create_discount_code');
+            setUser($pdo , $chat_id , 'status' , 'create_discount_code');
         }
     }
 //    else {msg('sendMessage', array('chat_id' => $chat_id, 'text' => ERROR_MESSAGE));}
@@ -128,7 +129,7 @@ if (isset($content['callback_query'])) {
         $count_completed = countUsers($pdo , 'completed');
         msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'فقط ' . TOTAL_COUNT_USER - $count_completed . ' نفر دیگر تا پایان طرح باقی مانده است '));
         msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'لطفاً آیدی اینستاگرام خود را ارسال کنید:'));
-        saveUserState($pdo , $chat_id, 'awaiting_instagram_id');
+        setUser($pdo , $chat_id , 'status' , 'awaiting_instagram_id');
     }elseif ($callback_data == 'get_discount') {
         $user = getUser($pdo , $user_id);
         if($user->state == 'create_discount_code'){
@@ -137,7 +138,7 @@ if (isset($content['callback_query'])) {
 // ارسال پیام معرفی کد تخفیف
             msg('sendMessage', array('chat_id' => $chat_id,'text' => "کد تخفیف شما:"));
             msg('sendMessage', array('chat_id' => $chat_id,'text' => $discount_code));
-            resetUserState($pdo , $user_id , 'completed');
+            setUser($pdo , $user_id , 'status' , 'completed');
         }else{
             msg('sendMessage', array('chat_id' => $chat_id,'text' => "شما در مرحله معرفی کد تخفیف نیستید."));
         }

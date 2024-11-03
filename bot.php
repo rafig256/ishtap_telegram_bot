@@ -40,21 +40,11 @@ function saveUserIfNotExists($pdo, $user_id, $first_name, $last_name, $username)
     }
 }
 
-
-// تابع ذخیره وضعیت کاربر
-function saveUserState($pdo, $user_id, $state) {
-    $query = "UPDATE users SET status = :state WHERE id = :user_id";
+function setUser($pdo , $user_id , $field , $value)
+{
+    $query = "UPDATE users SET $field = :value WHERE id = :user_id";
     $stmt = $pdo->prepare($query);
-    $stmt->execute(['state' => $state, 'user_id' => $user_id]);
-}
-
-// تابع بازیابی وضعیت کاربر
-function getUserState($pdo, $user_id) {
-    $query = "SELECT status FROM users WHERE id = :user_id";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['user_id' => $user_id]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result ? $result['status'] : null;
+    $stmt->execute(['value' => $value, 'user_id' => $user_id]);
 }
 
 function getUser($pdo, $user_id){
@@ -64,25 +54,7 @@ function getUser($pdo, $user_id){
     $result = $stmt->fetch(PDO::FETCH_OBJ);
     return $result;
 }
-// تابع ذخیره آیدی اینستاگرام
-function saveInstagramId($pdo, $user_id, $instagram_id) {
-    $query = "UPDATE users SET instagram_ids = :instagram_id WHERE id = :user_id";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['instagram_id' => $instagram_id, 'user_id' => $user_id]);
-}
 
-function saveJobName($pdo , $user_id, $job_name){
-    $query = "UPDATE users SET job_name = :job_name WHERE id = :user_id";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['job_name' => $job_name, 'user_id' => $user_id]);
-}
-
-// تابع تنظیم مجدد وضعیت کاربر
-function resetUserState($pdo, $user_id , $state ) {
-    $query = "UPDATE users SET status = :state WHERE id = :user_id";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['state' => $state, 'user_id' => $user_id]);
-}
 
 // تابع بازیابی تعداد کاربرانی که وضعیت مشخصی دارند
 function countUsers($pdo , $status) {
