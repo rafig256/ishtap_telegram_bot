@@ -76,3 +76,12 @@ function resetUserState($pdo, $user_id , $state ) {
     $stmt = $pdo->prepare($query);
     $stmt->execute(['state' => $state, 'user_id' => $user_id]);
 }
+
+// تابع بازیابی تعداد کاربرانی که وضعیت مشخصی دارند
+function countUsers($pdo , $status) {
+    $query = "SELECT COUNT(*) AS count FROM users WHERE status = :status";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['status' => $status]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['count'] : 0;
+}
