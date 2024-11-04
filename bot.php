@@ -68,6 +68,7 @@ function countUsers($pdo , $status) {
 function getDiscountCode($percent, $string, $number_random_char): string
 {
     $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    $string = substr($string , 0 , 8);
     $random = substr(str_shuffle($characters), 0, $number_random_char);
 
     $discount_code = $percent . '-' . $string . '-' . $random;
