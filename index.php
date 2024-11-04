@@ -105,7 +105,7 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
             $job_name = $message;
             setUser($pdo , $chat_id , 'job_name' , $job_name);
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'نام کسب و کار شما با موفقیت ذخیره شد. '));
-            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => LAW , 'reply_markup' => json_encode(LAW_MENU)));
+            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => LAW ));
             msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => PROCESS , 'reply_markup' => json_encode(LAW_MENU)));
             setUser($pdo , $chat_id , 'status' , 'create_discount_code');
         }
@@ -123,13 +123,19 @@ if (isset($content['callback_query'])) {
     $user_id = $callback_query['from']['id'];
 
     if ($callback_data == 'join_project') {
-        $count_completed = countUsers($pdo , 'completed');
-        msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'فقط ' . TOTAL_COUNT_USER - $count_completed . ' نفر دیگر تا پایان طرح باقی مانده است '));
-        msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'لطفاً آیدی اینستاگرام خود را ارسال کنید:'));
-        setUser($pdo , $chat_id , 'status' , 'awaiting_instagram_id');
+        $user = getUser($pdo, $user_id);
+        $user_state = $user->status;
+        if ($user_state == 'completed') {
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'شما قبلا در این طرح شرکت کرده اید'));
+        } else {
+            $count_completed = countUsers($pdo , 'completed');
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'فقط ' . TOTAL_COUNT_USER - $count_completed . ' نفر دیگر تا پایان طرح باقی مانده است '));
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'لطفاً آیدی اینستاگرام خود را ارسال کنید:'));
+            setUser($pdo , $chat_id , 'status' , 'awaiting_instagram_id');
+        }
     }elseif ($callback_data == 'get_discount') {
         $user = getUser($pdo , $user_id);
-        if($user->state == 'create_discount_code'){
+        if($user->status == 'create_discount_code'){
             $get_instagram_id = $user->instagram_ids;
             $discount_code = getDiscountCode(95, $get_instagram_id,4);
 // ارسال پیام معرفی کد تخفیف
