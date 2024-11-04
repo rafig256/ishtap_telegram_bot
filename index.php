@@ -155,6 +155,7 @@ if (isset($content['callback_query'])) {
         if($user_state == 'create_discount_code'){
             $get_instagram_id = $user->instagram_ids;
             $discount_code = getDiscountCode(DISCOUNT_PERCENT, $get_instagram_id,4);
+            $response = sendDiscountDataToSite($discount_code, DISCOUNT_PERCENT , 2 , 2);
             setUser($pdo , $user_id , 'discount_code' , $discount_code);
 // ارسال پیام معرفی کد تخفیف
             msg('sendMessage', array('chat_id' => $chat_id,'text' => "کد تخفیف شما:"));

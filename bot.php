@@ -24,6 +24,45 @@ function msg($method, $param) {
     return $result;
 }
 
+//ارسال کد تخفیف به سایت مادر
+function sendDiscountDataToSite($discount_code, $percent, $city_id = 2 , $day = 1)
+{
+    $url = DISCOUNT_URL;
+
+    // داده‌هایی که می‌خواهید ارسال کنید
+    $data = [
+        'discount_code' => $discount_code,
+        'percent' => $percent,
+        'city_id' => $city_id,
+        'day' => $day,
+    ];
+
+    // راه‌اندازی cURL
+    $ch = curl_init($url);
+
+    // تنظیمات cURL
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+
+    // ارسال درخواست
+    $response = curl_exec($ch);
+
+    // بررسی خطا
+    if (curl_errno($ch)) {
+        echo 'Error:' . curl_error($ch);
+    }
+
+    // بستن cURL
+    curl_close($ch);
+
+    if (isset($response_data['message']) && $response_data['message'] == 'success') {
+        return true; // عملیات موفقیت‌آمیز بوده است
+    } else {
+        return false; // عملیات ناموفق
+    }
+}
+
 // تابعی برای ذخیره کاربر در صورت عدم وجود در پایگاه داده
 function saveUserIfNotExists($pdo, $user_id, $first_name, $last_name, $username) {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id = :user_id");
