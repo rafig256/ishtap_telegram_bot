@@ -106,9 +106,26 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
             $job_name = $message;
             setUser($pdo , $chat_id , 'job_name' , $job_name);
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'نام کسب و کار شما با موفقیت ذخیره شد. '));
-            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => LAW ));
-            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => PROCESS , 'reply_markup' => json_encode(LAW_MENU)));
-            setUser($pdo , $chat_id , 'status' , 'create_discount_code');
+            msg('sendMessage', array(
+                'chat_id' => $chat_id,
+                'parse_mode' => 'HTML',
+                'text' => LAW,
+                'reply_markup' => json_encode(array(
+                    'inline_keyboard' => array(
+                        array(
+                            array(
+                                'text' => '✅ شرایط رو دارا هستم',
+                                'callback_data' => 'have_conditions'
+                            ),
+                            array(
+                                'text' => '❌ شرایط رو ندارم',
+                                'callback_data' => 'do_not_have_conditions'
+                            )
+                        )
+                    )
+                ))
+            ));
+            setUser($pdo , $chat_id , 'status' , 'check_conditions');
         }
     }
 //    else {msg('sendMessage', array('chat_id' => $chat_id, 'text' => ERROR_MESSAGE));}
@@ -122,10 +139,10 @@ if (isset($content['callback_query'])) {
     $chat_id = $callback_query['from']['id'];
     $callback_data = $callback_query['data'];
     $user_id = $callback_query['from']['id'];
+    $user = getUser($pdo, $user_id);
+    $user_state = $user->status;
 
     if ($callback_data == 'join_project') {
-        $user = getUser($pdo, $user_id);
-        $user_state = $user->status;
         if ($user_state == 'completed') {
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'شما قبلا در این طرح شرکت کرده اید'));
         } else {
@@ -135,8 +152,7 @@ if (isset($content['callback_query'])) {
             setUser($pdo , $chat_id , 'status' , 'awaiting_instagram_id');
         }
     }elseif ($callback_data == 'get_discount') {
-        $user = getUser($pdo , $user_id);
-        if($user->status == 'create_discount_code'){
+        if($user_state == 'create_discount_code'){
             $get_instagram_id = $user->instagram_ids;
             $discount_code = getDiscountCode(DISCOUNT_PERCENT, $get_instagram_id,4);
 // ارسال پیام معرفی کد تخفیف
@@ -147,5 +163,20 @@ if (isset($content['callback_query'])) {
             msg('sendMessage', array('chat_id' => $chat_id,'text' => "شما در مرحله معرفی کد تخفیف نیستید."));
         }
 
+    }elseif ($callback_data == 'have_conditions'){
+        if ($user_state == 'check_conditions'){
+            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => PROCESS , 'reply_markup' => json_encode(LAW_MENU)));
+            setUser($pdo , $chat_id , 'status' , 'create_discount_code');
+        }else{
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'انتخاب این کلید برای شما مجاز نیست'));
+        }
+    }elseif ($callback_data == 'do_not_have_conditions'){
+        msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'شما می توانید به صورت عادی در سایت ایش تاپ ثبت نام کنید و از خدمات آن استفاده نمایید.'));
+        setUser($pdo , $user_id , 'status' , 'completed');
+        msg('editMessageReplyMarkup', array(
+            'chat_id' => $chat_id,
+            'message_id' => $callback_query['message']['message_id'],
+            'reply_markup' => json_encode(array('inline_keyboard' => array()))
+        ));
     }
 }
