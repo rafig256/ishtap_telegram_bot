@@ -5,6 +5,7 @@ $content = json_decode($receive_data, true);
 const THANK_MESSAGE = 'ممنون که عضو کانال ما شده اید';
 const CHANEL_ID = '@khabar_tap';
 const TOTAL_COUNT_USER = 20;
+const DISCOUNT_PERCENT = 95;
 const REQUEST_JOIN_MESSAGE = 'شما عضو کانال ' . CHANEL_ID . " نیستید. ممنون می شویم اگر عضو شوید";
 const LAW = "<b>🚀 شرایط شرکت در طرح راکت:</b>\n\n" .
     "1️⃣ شما باید پیج اینستاگرامی با بیش از 1000 نفر دنبال‌کننده داشته باشید. " .
@@ -17,7 +18,7 @@ const PROCESS = "<b>📋 مراحل کار:</b>\n\n" .
 
     "2️⃣ روی <a href='https://ishtap.ir/register' target='_blank'>🔗 ثبت نام</a> کلیک کرده و در سایت بانک مشاغل ایش‌تاپ ثبت‌نام کنید.\n\n" .
 
-    "3️⃣ با کلیک روی دکمه‌ی انتهای این پیام، کد تخفیف <b>۹۵ درصدی</b> خود را دریافت کنید." .
+    "3️⃣ با کلیک روی دکمه‌ی انتهای این پیام، کد تخفیف <b>" . DISCOUNT_PERCENT . " درصدی</b> خود را دریافت کنید.".
     "\n(این کد ویژه شماست. لطفا پس از انجام مراحل ۱ و ۲، کد را دریافت کنید. کد تخفیف تاریخ انقضا دارد.)\n\n" .
 
     "4️⃣ پس از اینکه وارد سایت شدید، شغل خود را <a href='https://ishtap.ir/user/listing/create' target='_blank'>ثبت کرده</a> و با کد تخفیف پرداخت کنید. (هزینه با کد تخفیف بین <b>۱۵ تا ۵۰ هزار تومان</b> خواهد بود.)\n\n".
@@ -137,7 +138,7 @@ if (isset($content['callback_query'])) {
         $user = getUser($pdo , $user_id);
         if($user->status == 'create_discount_code'){
             $get_instagram_id = $user->instagram_ids;
-            $discount_code = getDiscountCode(95, $get_instagram_id,4);
+            $discount_code = getDiscountCode(DISCOUNT_PERCENT, $get_instagram_id,4);
 // ارسال پیام معرفی کد تخفیف
             msg('sendMessage', array('chat_id' => $chat_id,'text' => "کد تخفیف شما:"));
             msg('sendMessage', array('chat_id' => $chat_id,'text' => $discount_code));
