@@ -156,11 +156,15 @@ if (isset($content['callback_query'])) {
             $get_instagram_id = $user->instagram_ids;
             $discount_code = getDiscountCode(DISCOUNT_PERCENT, $get_instagram_id,4);
             $response = sendDiscountDataToSite($discount_code, DISCOUNT_PERCENT , 2 , 2);
-            setUser($pdo , $user_id , 'discount_code' , $discount_code);
-// ارسال پیام معرفی کد تخفیف
-            msg('sendMessage', array('chat_id' => $chat_id,'text' => "کد تخفیف شما:"));
-            msg('sendMessage', array('chat_id' => $chat_id,'text' => $discount_code));
-            setUser($pdo , $user_id , 'status' , 'completed');
+            if ($response){
+                setUser($pdo , $user_id , 'discount_code' , $discount_code);
+                // ارسال پیام معرفی کد تخفیف
+                msg('sendMessage', array('chat_id' => $chat_id,'text' => "کد تخفیف شما:"));
+                msg('sendMessage', array('chat_id' => $chat_id,'text' => $discount_code));
+                setUser($pdo , $user_id , 'status' , 'completed');
+            }else{
+                msg('sendMessage', array('chat_id' => $chat_id,'text' => "متاسفانه در حال حاضر خطایی در ذخیره ی کد تخفیف در سایت اصلی رخ داد. لطفا با پشتیان سایت تماس بگیرید."));
+            }
         }else{
             msg('sendMessage', array('chat_id' => $chat_id,'text' => "شما در مرحله معرفی کد تخفیف نیستید."));
         }
