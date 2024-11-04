@@ -48,6 +48,8 @@ function sendDiscountDataToSite($discount_code, $percent, $city_id = 2 , $day = 
     // ارسال درخواست
     $response = curl_exec($ch);
 
+    $response_data = json_decode($response, true);
+
     // بررسی خطا
     if (curl_errno($ch)) {
         echo 'Error:' . curl_error($ch);
