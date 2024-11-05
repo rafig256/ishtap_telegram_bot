@@ -6,6 +6,8 @@ const THANK_MESSAGE = 'ممنون که عضو کانال ما شده اید';
 const CHANEL_ID = '@khabar_tap';
 const TOTAL_COUNT_USER = 20;
 const DISCOUNT_PERCENT = 95;
+
+const MINIMUM_FOLLOWERS = 1000;
 const REQUEST_JOIN_MESSAGE = 'شما عضو کانال ' . CHANEL_ID . " نیستید. ممنون می شویم اگر عضو شوید";
 const LAW = "<b>🚀 شرایط شرکت در طرح راکت:</b>\n\n" .
     "1️⃣ شما باید پیج اینستاگرامی با بیش از 1000 نفر دنبال‌کننده داشته باشید. " .
@@ -95,12 +97,25 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
         $user = getUser($pdo , $chat_id);
         $user_state = $user->status;
         if ($user_state == 'awaiting_instagram_id') {
-            $instagram_id = $message;
 
+            $new_state = 'awaiting_job_name';
+            $instagram_id = $message;
             setUser($pdo , $chat_id , 'instagram_ids' , $instagram_id);
 
-            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'آیدی اینستاگرام شما با موفقیت ذخیره شد. لطفا نام کسب و کار خود را وارد کنید.'));
-            setUser($pdo , $chat_id , 'status' , 'awaiting_job_name');
+            $count = getInstagramFollowerCount($instagram_id);
+            $message_insta = 'آیدی اینستاگرام شما با موفقیت ذخیره شد. لطفا نام کسب و کار خود را وارد کنید.';
+
+            if($count){
+                if($count < 1000 ){
+                    $message_insta = "شما ".$count." فالور دارید. این تعداد کمتر از حداقل فالور مورد نیاز است.";
+                    $new_state = 'completed';
+                }else{
+                    $message_insta = "شما ".$count." فالور دارید. این تعداد مناسب است. لطفا نام کسب و کار خود را وارد کنید.";
+                }
+            }
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => $message_insta));
+            setUser($pdo , $chat_id , 'status' , $new_state);
+
         }
         elseif($user_state == 'awaiting_job_name') {
             $job_name = $message;
@@ -151,7 +166,25 @@ if (isset($content['callback_query'])) {
             msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'لطفاً آیدی اینستاگرام خود را ارسال کنید:'));
             setUser($pdo , $chat_id , 'status' , 'awaiting_instagram_id');
         }
-    }elseif ($callback_data == 'get_discount') {
+    }
+    elseif ($callback_data == 'have_conditions'){
+        if ($user_state == 'check_conditions'){
+            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => PROCESS , 'reply_markup' => json_encode(LAW_MENU)));
+            setUser($pdo , $chat_id , 'status' , 'create_discount_code');
+        }else{
+            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'انتخاب این کلید برای شما مجاز نیست'));
+        }
+    }
+    elseif ($callback_data == 'do_not_have_conditions'){
+        msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'شما می توانید به صورت عادی در سایت ایش تاپ ثبت نام کنید و از خدمات آن استفاده نمایید.'));
+        setUser($pdo , $user_id , 'status' , 'completed');
+        msg('editMessageReplyMarkup', array(
+            'chat_id' => $chat_id,
+            'message_id' => $callback_query['message']['message_id'],
+            'reply_markup' => json_encode(array('inline_keyboard' => array()))
+        ));
+    }
+    elseif ($callback_data == 'get_discount') {
         if($user_state == 'create_discount_code'){
             $get_instagram_id = $user->instagram_ids;
             $discount_code = getDiscountCode(DISCOUNT_PERCENT, $get_instagram_id,4);
@@ -169,20 +202,5 @@ if (isset($content['callback_query'])) {
             msg('sendMessage', array('chat_id' => $chat_id,'text' => "شما در مرحله معرفی کد تخفیف نیستید."));
         }
 
-    }elseif ($callback_data == 'have_conditions'){
-        if ($user_state == 'check_conditions'){
-            msg('sendMessage', array('chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => PROCESS , 'reply_markup' => json_encode(LAW_MENU)));
-            setUser($pdo , $chat_id , 'status' , 'create_discount_code');
-        }else{
-            msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'انتخاب این کلید برای شما مجاز نیست'));
-        }
-    }elseif ($callback_data == 'do_not_have_conditions'){
-        msg('sendMessage', array('chat_id' => $chat_id, 'text' => 'شما می توانید به صورت عادی در سایت ایش تاپ ثبت نام کنید و از خدمات آن استفاده نمایید.'));
-        setUser($pdo , $user_id , 'status' , 'completed');
-        msg('editMessageReplyMarkup', array(
-            'chat_id' => $chat_id,
-            'message_id' => $callback_query['message']['message_id'],
-            'reply_markup' => json_encode(array('inline_keyboard' => array()))
-        ));
     }
 }

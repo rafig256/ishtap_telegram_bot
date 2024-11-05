@@ -116,3 +116,31 @@ function getDiscountCode($percent, $string, $number_random_char): string
 
     return $discount_code;
 }
+
+function getInstagramFollowerCount($instagram_id){
+    $url = INSTAGRAM_API_URL.$instagram_id;
+    $ch = curl_init();
+
+    // تنظیمات cURL
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // اجرای درخواست و دریافت پاسخ
+    $response = curl_exec($ch);
+
+    // بررسی خطا
+    if (curl_errno($ch)) {
+        echo 'Error:' . curl_error($ch);
+        return null;
+    }
+    // بستن cURL
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+    if($data['status']){
+        $count = $data['result']['follower_count'];
+    }else{
+        return false ;
+    }
+    return $count;
+}
