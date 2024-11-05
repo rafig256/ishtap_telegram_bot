@@ -82,6 +82,9 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
     if ($message == '/start') {
         saveUserIfNotExists($pdo, $user_id, $first_name, $last_name, $username);
 
+        //send message to admin
+        msg('sendMessage', array('chat_id' => ADMIN_ID, 'text' => 'نوید: کاربر با آیدی ' . $user_id . ' و نام کاربری ' . $username . ' وارد ربات شد.'));
+
         $check_member = msg('getChatMember', array('chat_id' => CHANEL_ID, 'user_id' => $user_id));
         $check_member = json_decode($check_member, true);
         if ($check_member['ok']) {
