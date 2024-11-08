@@ -1,19 +1,19 @@
 <?php
 
+require_once 'connect.php';
 include_once 'bot.php';
 
-//$user_ids = getAllUsers($pdo);
-
-$user_ids = array(700556696 , 1291617421 , 92514487 , 92514488);
+$user_ids = getAllUsers($pdo);
 
 foreach ($user_ids as $userId) {
     // ارسال پیام با تابع msg
     $response = msg('sendMessage', [
         'chat_id' => $userId,
-        'text' => 'از تاخیر بوجود آمده عذرخواهی می کنیم. شما از طریق منوی زیر می توانید در طرح راکت سایت ایش تاپ شرکت کنید',
+        'text' => 'از تاخیر بوجود آمده عذرخواهی می کنیم. شما از طریق منوی زیر می توانید در طرح راکت سایت ایش تاپ شرکت کنید. در صورتیکه قبلا کد تخفیف دریافت کرده اید نیاز به اقدام دیگری ندارید.',
         'reply_markup' => json_encode(START_MENU)
     ]);
 
+    $response = json_decode($response , true);
     // بررسی نتیجه ارسال پیام
     if ($response && isset($response['ok']) && $response['ok']) {
         echo "Message sent to user ID: {$userId}\n";
