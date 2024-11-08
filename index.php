@@ -32,18 +32,7 @@ const PROCESS = "<b>📋 مراحل کار:</b>\n\n" .
     "<b>📈 گارانتی:</b>\n" .
     "اگر ظرف <b>دو هفته</b> پس از انتشار، صفحه‌ی شغلی شما با جستجوی نام کسب‌وکار در صفحه اول گوگل ظاهر نشود، " .
     "هزینه پرداختی عودت داده شده و صفحه شما تا پایان یکسال در سایت باقی خواهد ماند.";
-const START_MENU = array(
-    'resize_keyboard' => true,
-    'inline_keyboard' => array(
-        array(
-            array('text' => 'ورود به سایت ایش تاپ', 'url' => 'https://ishtap.ir'),
-            array('text' => 'تعرفه ها', 'url' => 'https://ishtap.ir/pricing'),
-        ),
-        array(
-            array('text' => 'شرکت در طرح راکت 🚀', 'callback_data' => 'join_project'),
-        )
-    )
-);
+
 const LAW_MENU = array(
     'resize_keyboard' => true,
     'inline_keyboard' => array(
@@ -91,7 +80,7 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
         $check_member = json_decode($check_member, true);
         if ($check_member['ok']) {
             if (in_array($check_member['result']['status'], ['member', 'creator', 'administrator'])) {
-                msg('sendMessage', array('chat_id' => $chat_id, 'text' => THANK_MESSAGE.$check_member['result']['status'], 'reply_markup' => json_encode(START_MENU)));
+                msg('sendMessage', array('chat_id' => $chat_id, 'text' => THANK_MESSAGE, 'reply_markup' => json_encode(START_MENU)));
             }else{
                 msg('sendMessage', array('chat_id' => $chat_id, 'text' => REQUEST_JOIN_MESSAGE));
                 msg('sendMessage', array('chat_id' => $chat_id, 'text' => START_MESSAGE, 'reply_markup' => json_encode(START_MENU)));

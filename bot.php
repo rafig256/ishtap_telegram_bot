@@ -144,3 +144,8 @@ function getInstagramFollowerCount($instagram_id){
     }
     return $count;
 }
+
+function getAllUsers($pdo){
+    $stmt = $pdo->query("SELECT id FROM users");
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
