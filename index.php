@@ -67,6 +67,7 @@ const LAW_MENU = array(
     )
 );
 
+
 // فراخوانی فایل‌های مورد نیاز
 require 'bot.php';
 require_once 'connect.php';
@@ -85,14 +86,15 @@ if (isset($content['message']['chat']['id']) && isset($content['message']['text'
         //send message to admin
         msg('sendMessage', array('chat_id' => ADMIN_ID, 'text' => 'نوید: کاربر با آیدی ' . $user_id . ' و نام کاربری ' . $username . ' وارد ربات شد.'));
 
+        //بررسی می کنم که آیا کاربر عضو یک کانال خاص است یا نه
         $check_member = msg('getChatMember', array('chat_id' => CHANEL_ID, 'user_id' => $user_id));
         $check_member = json_decode($check_member, true);
         if ($check_member['ok']) {
             if (in_array($check_member['result']['status'], ['member', 'creator', 'administrator'])) {
-                msg('sendMessage', array('chat_id' => $chat_id, 'text' => THANK_MESSAGE, 'reply_markup' => json_encode(START_MENU)));
-            } else {
+                msg('sendMessage', array('chat_id' => $chat_id, 'text' => THANK_MESSAGE.$check_member['result']['status'], 'reply_markup' => json_encode(START_MENU)));
+            }else{
                 msg('sendMessage', array('chat_id' => $chat_id, 'text' => REQUEST_JOIN_MESSAGE));
-                msg('sendMessage', array('chat_id' => $chat_id, 'text' => THANK_MESSAGE, 'reply_markup' => json_encode(START_MENU)));
+                msg('sendMessage', array('chat_id' => $chat_id, 'text' => START_MESSAGE, 'reply_markup' => json_encode(START_MENU)));
             }
         }
     }
